@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import './App.css';
-import '../node_modules/react-vis/dist/style.css';
-import {XYPlot, LineSeries} from 'react-vis';
+import styled from 'styled-components'
+import {XYPlot, LineSeries, VerticalGridLines, HorizontalGridLines, XAxis, YAxis } from 'react-vis';
 
+const Applayout = styled.div`
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+`
 class App extends Component {
+
     render() {
         const data = [
             {x: 0, y: 8},
@@ -17,11 +22,33 @@ class App extends Component {
             {x: 8, y: 2},
             {x: 9, y: 0}
         ];
+
         return (
+
             <div className="App">
-                <XYPlot height={300} width={300}>
+                <Applayout>
+                <XYPlot height={300} width= {300}>
+                    <VerticalGridLines />
+                    <HorizontalGridLines />
+                    <XAxis />
+                    <YAxis />
                     <LineSeries data={data} />
                 </XYPlot>
+                    <XYPlot height={300} width= {300}>
+                        <VerticalGridLines />
+                        <HorizontalGridLines />
+                        <XAxis />
+                        <YAxis />
+                        <LineSeries data={data} />
+                    </XYPlot>
+                    <XYPlot height={300} width= {300}>
+                        <VerticalGridLines />
+                        <HorizontalGridLines />
+                        <XAxis />
+                        <YAxis />
+                        <LineSeries data={data} />
+                    </XYPlot>
+                </Applayout>
             </div>
         );
     }

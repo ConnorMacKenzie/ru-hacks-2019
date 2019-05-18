@@ -1,2 +1,3 @@
 itrade-backend/venv
+itrade-backend/services/__pycache__
 .idea/*

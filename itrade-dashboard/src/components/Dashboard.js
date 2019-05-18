@@ -17,6 +17,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, secondaryListItems } from './listItems';
 import SimpleLineChart from './SimpleLineChart';
 import SimpleTable from './SimpleTable';
+import SimpleBarChart from'./SimpleBarChart'
 
 const drawerWidth = 240;
 
@@ -98,9 +99,22 @@ const styles = theme => ({
 });
 
 class Dashboard extends React.Component {
-  state = {
-    open: true,
-  };
+  constructor(props){
+    super(props);
+    this.state = {
+      open: true,
+      timeUnit: "year",
+      selected: "name"
+    };
+  }
+
+  handleClick =(timeUnit) =>{
+    this.setState({timeUnit: timeUnit});
+  }
+
+  handleHover =(selected) =>{
+    this.setState({selected: selected});
+  }
 
   handleDrawerOpen = () => {
     this.setState({ open: true });
@@ -130,7 +144,7 @@ class Dashboard extends React.Component {
                 this.state.open && classes.menuButtonHidden,
               )}
             >
-              <MenuIcon />
+              <MenuIcon/>
             </IconButton>
             <Typography
               component="h1"
@@ -166,13 +180,14 @@ class Dashboard extends React.Component {
             Orders
           </Typography>
           <Typography component="div" className={classes.chartContainer}>
-            <SimpleLineChart />
+            <SimpleBarChart onChange={this.handleClick} onHover={this.handleHover}/>
+            {this.state.timeUnit == "month" && <SimpleLineChart/>}
           </Typography>
           <Typography variant="h4" gutterBottom component="h2">
             Products
           </Typography>
           <div className={classes.tableContainer}>
-            <SimpleTable />
+            <SimpleTable/>
           </div>
         </main>
       </div>

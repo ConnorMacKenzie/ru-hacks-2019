@@ -1,3 +1,5 @@
 itrade-backend/venv
 itrade-backend/services/__pycache__
 .idea/*
+node-graph/node_modules
+sql/workbook.sql

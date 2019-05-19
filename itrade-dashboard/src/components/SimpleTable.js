@@ -18,20 +18,6 @@ const styles = {
   },
 };
 
-let id = 0;
-function createData(name, calories, fat, carbs, protein) {
-  id += 1;
-  return { id, name, calories, fat, carbs, protein };
-}
-
-const data = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
-
 function SimpleTable(props) {
   const { classes } = props;
 
@@ -40,23 +26,25 @@ function SimpleTable(props) {
       <Table className={classes.table}>
         <TableHead>
           <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat (g)</TableCell>
-            <TableCell align="right">Carbs (g)</TableCell>
-            <TableCell align="right">Protein (g)</TableCell>
+            <TableCell>Order ID</TableCell>
+            <TableCell align="right">Seller Id</TableCell>
+            <TableCell align="right">Product Code</TableCell>
+            <TableCell align="right">Total Quantity</TableCell>
+            <TableCell align="right">Order Price</TableCell>
+            <TableCell align="right">Audit Month</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map(n => (
-            <TableRow key={n.id}>
+          {props.data.sellers.map(n => (
+            <TableRow key={n.products[0].orders[0].id}>
               <TableCell component="th" scope="row">
-                {n.name}
+                {n.products[0].orders[0].id}
               </TableCell>
-              <TableCell align="right">{n.calories}</TableCell>
-              <TableCell align="right">{n.fat}</TableCell>
-              <TableCell align="right">{n.carbs}</TableCell>
-              <TableCell align="right">{n.protein}</TableCell>
+              <TableCell align="right">{n.sellerid}</TableCell>
+              <TableCell align="right">{n.products[0].productcode}</TableCell>
+              <TableCell align="right">{n.products[0].orders[0].total_qty}</TableCell>
+              <TableCell align="right">{n.products[0].orders[0].order_price}</TableCell>
+              <TableCell align="right">{n.products[0].orders[0].audit_mth}</TableCell>
             </TableRow>
           ))}
         </TableBody>

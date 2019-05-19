@@ -83,13 +83,15 @@ const loaders = {
      buyer: {
        type: BuyerType,
        resolve(parent, args){
-         return loaders.buyerById.load({id: parent.id});
+         query = "SELECT buyerid FROM supplychain WHERE id = $1";
+         return psql.one(query, [parent.id]);
        }
      },
      seller: {
        type: SellerType,
        resolve(parent, args){
-         return loaders.sellerById.load({id: parent.id});
+         query = "SELECT sellerid FROM supplychain WHERE id = $1"
+         return psql.one(query, [parent.id]);
        }
      },
    })
@@ -105,7 +107,7 @@ const loaders = {
        type: new GraphQLList(OrderType),
        args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         return loaders.ordersByProductCode.load(parent.productcode, args.limit);
+         return loaders.ordersByProductCode.load({id: parent.productcode, limit: args.limit});
        }
      }
    })

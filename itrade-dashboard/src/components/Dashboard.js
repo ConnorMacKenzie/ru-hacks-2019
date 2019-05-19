@@ -17,51 +17,10 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, secondaryListItems } from './listItems';
 import SimpleLineChart from './SimpleLineChart';
 import SimpleTable from './SimpleTable';
-import { Query } from 'react-apollo';
-import ggl from 'graphql-tag';
+import { Query, graphql} from 'react-apollo';
+import gql from 'graphql-tag';
+import {getSeller, getLineChart} from '../queries'
 import {XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries, SunBurst, RadialChart, RadarChart} from "react-vis";
-
-const GET_QUERY = ggl`
-{
-  sellers(limit:2){
-  sellerid
-  products(limit:2){
-    productcode
-    orders(limit:2){
-      total_qty
-      order_price
-      audit_mth
-      buyer{
-        buyerid
-      }
-    }
-  }
-}
-}`;
-
-const orderPriceWithBuyerFacts= ggl`{
-	ordersByAuditMths(audit_mth:["jan-17","feb-17","mar-17","apr-17"], limit:1000
-  ){
-    order_price
-  	audit_mth	
-    buyer{
-      buyerid
-    }
-  }
-  `;
-
-const query = () => (
-    <Query query={GET_QUERY}>
-      {({data: {sellers}, loading}) => {
-        if (loading || !sellers){
-          return <div id="chartLoading">Loading...</div>;
-        }
-        return (
-            <SellersList sellers={sellers} />
-        );
-      }}
-    </Query>
-);
 
 const SellersList = ({ sellers }) => (
     <ul>
@@ -158,6 +117,34 @@ const styles = theme => ({
   },
 });
 
+const SimpleTableComp = () => (
+  <Query
+    query={getSeller}>
+    {({ loading, error, data }) => {
+      if (loading) return null;
+      if (error) return `Error! ${error}`;
+
+      return (
+        <SimpleTable data={data} />
+      );
+    }}
+  </Query>
+);
+
+const SimpleLineComp = () => (
+  <Query
+    query={getLineChart}>
+    {({ loading, error, data }) => {
+      if (loading) return null;
+      if (error) return `Error! ${error}`;
+
+      return (
+        <SimpleLineChart data={data} />
+      );
+    }}
+  </Query>
+);
+
 class Dashboard extends React.Component {
   state = {
     open: true,
@@ -223,23 +210,20 @@ class Dashboard extends React.Component {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          {query()}
+          <Typography variant="h4" gutterBottom component="h2">
+            Price for Shop Over 1 Year
+          </Typography>
+          <Typography component="div" className={classes.chartContainer}>
+            {SimpleLineComp()}
+          </Typography>
           <Typography variant="h4" gutterBottom component="h2">
             Orders
           </Typography>
-          <Typography component="div" className={classes.chartContainer}>
-            <SimpleLineChart data={this.props.data} />
-          </Typography>
-          <Typography variant="h4" gutterBottom component="h2">
-            Products
-          </Typography>
           <div className={classes.tableContainer}>
-            <SimpleTable data={this.props.data} />
+            {SimpleTableComp()}
           </div>
           <Typography component="div" gutterBottom component="h2">
-            <RadialChart data={}
-                         width={500}
-                         height{500}/>
+
           </Typography>
         </main>
       </div>

@@ -18,9 +18,18 @@ const {
      sellerid: {type: GraphQLInt},
      products: {
        type: new GraphQLList(ProductType),
+       args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE sellerid = $1 LIMIT(10)"
-         return psql.any(query, [parent.sellerid]);
+         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE sellerid = $1 LIMIT($2)"
+         return psql.any(query, [parent.sellerid, args.limit]);
+       }
+     },
+     orders: {
+       type: new GraphQLList(OrderType),
+       args: {limit: {type: GraphQLInt}},
+       resolve(parent, args){
+         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE sellerid = $1 LIMIT($2)"
+         return psql.any(query, [parent.sellerid, args.limit]);
        }
      }
    })
@@ -32,9 +41,18 @@ const {
      buyerid: {type: GraphQLInt},
      products: {
        type: new GraphQLList(ProductType),
+       args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE buyerid = $1 LIMIT(10)"
-         return psql.any(query, [parent.buyerid]);
+         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE buyerid = $1 LIMIT($2)"
+         return psql.any(query, [parent.buyerid, args.limit]);
+       }
+     },
+     orders: {
+       type: new GraphQLList(OrderType),
+       args: {limit: {type: GraphQLInt}},
+       resolve(parent, args){
+         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE buyerid = $1 LIMIT($2)"
+         return psql.any(query, [parent.buyerid, args.limit]);
        }
      }
    })
@@ -46,13 +64,28 @@ const {
      id: {type: GraphQLInt},
      total_qty: {type: GraphQLString},
      order_price: {type: GraphQLFloat},
+     audit_mth: {type: GraphQLString},
      product: {
        type: ProductType,
        resolve(parent, args){
          query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE id = $1"
          return psql.one(query, [parent.id]);
        }
-     }
+     },
+     buyer: {
+       type: BuyerType,
+       resolve(parent, args){
+         query = "SELECT buyerid FROM supplychain WHERE id = $1"
+         return psql.one(query, [parent.id]);
+       }
+     },
+     sellers: {
+       type: SellerType,
+       resolve(parent, args){
+         query = "SELECT sellerid FROM supplychain WHERE id = $1"
+         return psql.one(query, [parent.id]);
+       }
+     },
    })
  })
 
@@ -62,18 +95,12 @@ const {
      productcode: {type: GraphQLString},
      display_description: {type: GraphQLString},
      categoryname: {type: GraphQLString},
-     buyers: {
-       type: new GraphQLList(BuyerType),
+     orders: {
+       type: new GraphQLList(OrderType),
+       args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT buyerid FROM supplychain WHERE productcode = $1 LIMIT(10)"
-         return psql.any(query, [parent.productcode]);
-       }
-     },
-     sellers: {
-       type: new GraphQLList(SellerType),
-       resolve(parent, args){
-         query = "SELECT sellerid FROM supplychain WHERE productcode = $1 LIMIT(10)"
-         return psql.any(query, [parent.productcode]);
+         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE productcode = $1 LIMIT($2)"
+         return psql.any(query, [parent.productcode, args.limit]);
        }
      }
    })
@@ -85,35 +112,79 @@ const {
      //SELLER QUERIES
      sellers:{
        type: new GraphQLList(SellerType),
+       args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT DISTINCT sellerid FROM supplychain LIMIT(10)"
-         return psql.any(query, []);
+         query = "SELECT DISTINCT sellerid FROM supplychain LIMIT($1)"
+         return psql.any(query, [args.limit]);
+       }
+     },
+     sellerById:{
+       type: SellerType,
+       args: {
+         sellerid: {type: GraphQLInt}
+       },
+       resolve(parent, args){
+         return args
        }
      },
      //BUYER QUERIES
      buyers: {
        type: new GraphQLList(BuyerType),
+       args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT DISTINCT buyerid FROM supplychain LIMIT(10)"
-         return psql.any(query, []);
+         query = "SELECT DISTINCT buyerid FROM supplychain LIMIT($1)"
+         return psql.any(query, [args.limit]);
        }
+      },
+      buyerById:{
+        type: BuyerType,
+        args: {
+          buyerid: {type: GraphQLInt}
+        },
+        resolve(parent, args){
+          return args
+        }
       },
      //ORDERS QUERIES
      orders: {
        type: new GraphQLList(OrderType),
+       args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT id, total_qty, order_price FROM supplychain LIMIT(10)"
-         return psql.any(query, []);;
+         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain LIMIT($1)"
+         return psql.any(query, [args.limit]);
+       }
+     },
+     orderById: {
+       type: OrderType,
+       args: {
+         id: {type: GraphQLInt},
+         limit: {type: GraphQLInt}
+       },
+       resolve(parent, args){
+         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE id = $1"
+         return psql.one(query, [args.id]);
        }
      },
      //PRODUCTS QUERIES
      products: {
        type: new GraphQLList(ProductType),
+       args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT productcode, display_description, categoryname FROM supplychain LIMIT(10)"
-         return psql.any(query, []);;
+         query = "SELECT productcode, display_description, categoryname FROM supplychain LIMIT($1)"
+         return psql.any(query, [args.limit]);
        }
-     }
+     },
+     productByCode:{
+       type: new GraphQLList(ProductType),
+       args: {
+         productcode: {type: GraphQLInt},
+         limit: {type: GraphQLInt}
+       },
+       resolve(parent, args){
+         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE productcode = $1"
+         return psql.one(query, [args.productcode]);
+       }
+     },
    }
  });
 

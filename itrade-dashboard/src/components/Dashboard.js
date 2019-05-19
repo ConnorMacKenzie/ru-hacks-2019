@@ -17,7 +17,68 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, secondaryListItems } from './listItems';
 import SimpleLineChart from './SimpleLineChart';
 import SimpleTable from './SimpleTable';
+import { Query } from 'react-apollo';
+import ggl from 'graphql-tag';
+import {XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries, SunBurst, RadialChart, RadarChart} from "react-vis";
 
+const GET_QUERY = ggl`
+{
+  sellers(limit:2){
+  sellerid
+  products(limit:2){
+    productcode
+    orders(limit:2){
+      total_qty
+      order_price
+      audit_mth
+      buyer{
+        buyerid
+      }
+    }
+  }
+}
+}`;
+
+const orderPriceWithBuyerFacts= ggl`{
+	ordersByAuditMths(audit_mth:["jan-17","feb-17","mar-17","apr-17"], limit:1000
+  ){
+    order_price
+  	audit_mth	
+    buyer{
+      buyerid
+    }
+  }
+  `;
+
+const query = () => (
+    <Query query={GET_QUERY}>
+      {({data: {sellers}, loading}) => {
+        if (loading || !sellers){
+          return <div id="chartLoading">Loading...</div>;
+        }
+        return (
+            <SellersList sellers={sellers} />
+        );
+      }}
+    </Query>
+);
+
+const SellersList = ({ sellers }) => (
+    <ul>
+      {sellers.map(node => {
+        return (
+            <li key={node.sellerid}>
+              {node.products.map(p => (
+                  <li key={p.productcode}>
+                    <p>{p.productcode}</p>
+                  </li>
+              ))}
+              <p>{node.id}</p>
+            </li>
+        );
+      })}
+    </ul>
+);
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -162,18 +223,24 @@ class Dashboard extends React.Component {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
+          {query()}
           <Typography variant="h4" gutterBottom component="h2">
             Orders
           </Typography>
           <Typography component="div" className={classes.chartContainer}>
-            <SimpleLineChart />
+            <SimpleLineChart data={this.props.data} />
           </Typography>
           <Typography variant="h4" gutterBottom component="h2">
             Products
           </Typography>
           <div className={classes.tableContainer}>
-            <SimpleTable />
+            <SimpleTable data={this.props.data} />
           </div>
+          <Typography component="div" gutterBottom component="h2">
+            <RadialChart data={}
+                         width={500}
+                         height{500}/>
+          </Typography>
         </main>
       </div>
     );

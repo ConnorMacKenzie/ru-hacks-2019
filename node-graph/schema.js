@@ -181,8 +181,8 @@ const {
          limit: {type: GraphQLInt}
        },
        resolve(parent, args){
-         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE productcode = $1"
-         return psql.one(query, [args.productcode]);
+         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE productcode = $1 LIMIT($2)"
+         return psql.any(query, [args.productcode, args.limit]);
        }
      },
    }

@@ -165,6 +165,17 @@ const {
          return psql.one(query, [args.id]);
        }
      },
+     ordersByAuditMths: {
+       type: new GraphQLList(OrderType),
+       args: {
+         audit_mth: {type: GraphQLList(GraphQLString)},
+         limit: {type: GraphQLInt}
+       },
+       resolve(parent, args){
+         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE audit_mth IN ($1:csv) LIMIT($2)"
+         return psql.any(query, [args.audit_mth, args.limit]);
+       }
+     },
      //PRODUCTS QUERIES
      products: {
        type: new GraphQLList(ProductType),
@@ -177,7 +188,7 @@ const {
      productByCode:{
        type: new GraphQLList(ProductType),
        args: {
-         productcode: {type: GraphQLInt},
+         productcode: {type: GraphQLString},
          limit: {type: GraphQLInt}
        },
        resolve(parent, args){

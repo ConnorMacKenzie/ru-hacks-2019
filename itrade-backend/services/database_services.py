@@ -1,12 +1,19 @@
 import psycopg2
-import psycopg2.extensions
 import traceback
 
-def price_per_seller_per_month(args):
+def price_per_seller(args):
     query  = """SELECT AVG(Order_Price), SELLERID """
     query += """FROM supplychain """
     query += """WHERE AUDIT_MTH = %s """
     query += """GROUP BY SELLERID """
+    query += """ORDER BY SELLERID ASC;"""
+    return execute(query, args)
+
+def price_per_seller_per_category(args):
+    query = """SELECT AVG(Order_Price), categoryname, SELLERID """
+    query += """FROM supplychain """
+    query += """WHERE AUDIT_MTH = %s """
+    query += """GROUP BY categoryname, SELLERID """
     query += """ORDER BY SELLERID ASC;"""
     return execute(query, args)
 
@@ -17,7 +24,6 @@ def execute(query, args):
                                       host = "127.0.0.1",
                                       port = "5432",
                                       database = "postgres")
-        psycopg2.extensions.register_type(psycopg2.extensions.BYTES, connection)
         cursor = connection.cursor()
         print ("[INFO] Connecting to PostgreSQL")
         cursor.execute(query, args)

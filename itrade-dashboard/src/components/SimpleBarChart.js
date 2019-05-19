@@ -41,15 +41,20 @@ export default class Example extends PureComponent {
 
     showTooltipData = (data) => {
         if ( typeof data.payload[0] !== 'undefined') {
-            return data.payload[0].payload.name
+            selected = data.payload[0].payload.name
         }
     }
 
-    onBar = (time) => {
-        this.props.onChange(time);
+    onBar = () => {
+        this.props.onChange("month");
+    }
+    offBar = () => {
+        this.props.onChange("year");
     }
     onHover = () => {
-        this.props.onHover(this.showTooltipData);
+        this.props.onHover(selected);
+        console.log("here")
+
     }
 
     render() {
@@ -61,15 +66,16 @@ export default class Example extends PureComponent {
                 margin={{
                     top: 5, right: 30, left: 20, bottom: 5,
                 }}
-                onMouseLeave ={() => {this.onBar('year')}}
+                onMouseOver = {this.onBar}
+                onMouseLeave = {this.offBar}
             >
                 <CartesianGrid strokeDasharray="3 4" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip content={this.showTooltipData.bind(this)}/>
                 <Legend/>
-                <Bar dataKey="pv" fill="#8884d8" onMouseOver ={() => {this.onBar('month')}}/>
-                <Bar dataKey="uv" fill="#82ca9d" onMouseOver ={this.onHover}/>
+                <Bar dataKey="pv" fill="#8884d8" onMouseOver = {this.onHover}/>
+                <Bar dataKey="uv" fill="#82ca9d" onMouseOver = {this.onHover}/>
             </BarChart>
         );
     }

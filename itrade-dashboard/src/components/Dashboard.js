@@ -39,6 +39,17 @@ const GET_QUERY = ggl`
 }
 }`;
 
+const orderPriceWithBuyerFacts= ggl`{
+	ordersByAuditMths(audit_mth:["jan-17","feb-17","mar-17","apr-17"], limit:1000
+  ){
+    order_price
+  	audit_mth	
+    buyer{
+      buyerid
+    }
+  }
+  `;
+
 const query = () => (
     <Query query={GET_QUERY}>
       {({data: {sellers}, loading}) => {
@@ -225,6 +236,11 @@ class Dashboard extends React.Component {
           <div className={classes.tableContainer}>
             <SimpleTable data={this.props.data} />
           </div>
+          <Typography component="div" gutterBottom component="h2">
+            <RadialChart data={}
+                         width={500}
+                         height{500}/>
+          </Typography>
         </main>
       </div>
     );

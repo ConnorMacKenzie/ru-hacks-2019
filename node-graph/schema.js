@@ -1,5 +1,7 @@
 const graphql = require('graphql');
 const psql = require('./psqlAdapter').psql;
+const db = require('./database');
+const DataLoader = require('dataloader');
 
 const {
   GraphQLObjectType,
@@ -12,6 +14,17 @@ const {
   GraphQLNonNull
 } = graphql;
 
+const loaders = {
+  productsBySellerId: new DataLoader(db.getProductsBySellerId),
+  productsByBuyerId: new DataLoader(db.getProductsByBuyerId),
+  productById: new DataLoader(db.getProductById),
+  ordersBySellerId: new DataLoader(db.getOrdersBySellerId),
+  ordersByBuyerId: new DataLoader(db.getOrdersByBuyerId),
+  ordersByProductCode: new DataLoader(db.getOrdersByProductCode),
+  buyerById: new DataLoader(db.getBuyerById),
+  sellerById: new DataLoader(db.getSellerById),
+}
+
  const SellerType = new GraphQLObjectType({
    name: 'Seller',
    fields: () => ({
@@ -20,16 +33,14 @@ const {
        type: new GraphQLList(ProductType),
        args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE sellerid = $1 LIMIT($2)"
-         return psql.any(query, [parent.sellerid, args.limit]);
+         return loaders.productsBySellerId.load({id: parent.sellerid, limit: args.limit});
        }
      },
      orders: {
        type: new GraphQLList(OrderType),
        args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE sellerid = $1 LIMIT($2)"
-         return psql.any(query, [parent.sellerid, args.limit]);
+         return loaders.ordersBySellerId.load({id: parent.sellerid, limit: args.limit});
        }
      }
    })
@@ -43,16 +54,14 @@ const {
        type: new GraphQLList(ProductType),
        args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE buyerid = $1 LIMIT($2)"
-         return psql.any(query, [parent.buyerid, args.limit]);
+         return loaders.productsByBuyerId.load({id: parent.buyerid, limit: args.limit});
        }
      },
      orders: {
        type: new GraphQLList(OrderType),
        args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE buyerid = $1 LIMIT($2)"
-         return psql.any(query, [parent.buyerid, args.limit]);
+         return loaders.ordersByBuyerId.load({id: parent.buyerid, limtit: args.limit});
        }
      }
    })
@@ -68,22 +77,19 @@ const {
      product: {
        type: ProductType,
        resolve(parent, args){
-         query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE id = $1"
-         return psql.one(query, [parent.id]);
+         return loaders.productById.load(parent.id);
        }
      },
      buyer: {
        type: BuyerType,
        resolve(parent, args){
-         query = "SELECT buyerid FROM supplychain WHERE id = $1"
-         return psql.one(query, [parent.id]);
+         return loaders.buyerById.load(parent.id);
        }
      },
-     sellers: {
+     seller: {
        type: SellerType,
        resolve(parent, args){
-         query = "SELECT sellerid FROM supplychain WHERE id = $1"
-         return psql.one(query, [parent.id]);
+         return loaders.sellerById.load(parent.id);
        }
      },
    })
@@ -99,8 +105,7 @@ const {
        type: new GraphQLList(OrderType),
        args: {limit: {type: GraphQLInt}},
        resolve(parent, args){
-         query = "SELECT id, total_qty, order_price, audit_mth FROM supplychain WHERE productcode = $1 LIMIT($2)"
-         return psql.any(query, [parent.productcode, args.limit]);
+         return loaders.ordersByProductCode.load(parent.productcode, args.limit);
        }
      }
    })

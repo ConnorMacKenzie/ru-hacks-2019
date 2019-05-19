@@ -77,19 +77,19 @@ const loaders = {
      product: {
        type: ProductType,
        resolve(parent, args){
-         return loaders.productById.load(parent.id);
+         return loaders.productById.load({id: parent.id});
        }
      },
      buyer: {
        type: BuyerType,
        resolve(parent, args){
-         return loaders.buyerById.load(parent.id);
+         return loaders.buyerById.load({id: parent.id});
        }
      },
      seller: {
        type: SellerType,
        resolve(parent, args){
-         return loaders.sellerById.load(parent.id);
+         return loaders.sellerById.load({id: parent.id});
        }
      },
    })

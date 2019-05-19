@@ -7,13 +7,13 @@ module.exports.getProductsBySellerId = function(params){
 },
 
 module.exports.getProductsByBuyerId = function(params){
-  query = "SELECT DISTINCT buyerid, productcode, display_description, categoryname FROM supplychain WHERE buyerid = $1 GROUP BY productcode, display_description, categoryname LIMIT($2)"
+  query = "SELECT DISTINCT productcode, display_description, categoryname FROM supplychain WHERE buyerid = $1 GROUP BY productcode, display_description, categoryname LIMIT($2)"
   return execute(query, params);
 },
 
 module.exports.getProductById = function(params){
   query = "SELECT productcode, display_description, categoryname FROM supplychain WHERE id = $1"
-  return execute(query, params);
+  return execute_one(query, params);
 },
 
 module.exports.getOrdersBySellerId = function(params){
@@ -33,16 +33,23 @@ module.exports.getOrdersByProductCode = function(params){
 
 module.exports.getBuyerById = function(params){
   query = "SELECT buyerid FROM supplychain WHERE id = $1"
-  return execute(query, params);
+  return execute_one(query, params);
 },
 
 module.exports.getSellerById = function(params){
   query = "SELECT sellerid FROM supplychain WHERE id = $1"
-  return execute(query, params);
+  return execute_one(query, params);
 }
 
 function execute(query, params){
   query_array = params.map(i => psql.any(query, [i.id, i.limit || QUERY_LIMIT]));
+  return psql.task(t => {
+    return t.batch(query_array)
+  });
+}
+
+function execute_one(query, params){
+  query_array = params.map(i => psql.one(query, [i.id, i.limit || QUERY_LIMIT]));
   return psql.task(t => {
     return t.batch(query_array)
   });

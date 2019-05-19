@@ -20,6 +20,7 @@ import SimpleTable from './SimpleTable';
 import SimpleBarChart from'./SimpleBarChart'
 
 const drawerWidth = 240;
+let data = [];
 
 const styles = theme => ({
   root: {
@@ -180,7 +181,7 @@ class Dashboard extends React.Component {
             Suppliers
           </Typography>
           <Typography component="div" className={classes.chartContainer}>
-            <SimpleBarChart onChange={this.handleClick} onHover={this.handleHover}/>
+            <SimpleBarChart data={data} onChange={this.handleClick} onHover={this.handleHover}/>
             {this.state.timeUnit == "month" && <SimpleLineChart/>}
           </Typography>
           <Typography variant="h4" gutterBottom component="h2">

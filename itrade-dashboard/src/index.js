@@ -144,13 +144,21 @@ const dataMock =[
         ]
     }
 ];
-const data = axios.get("http://localhost:5000/trends/supplier/jan-16").then(response => {
-    console.log(response);
+axios.get("http://localhost:5000/trends/supplier/jan-16").then(response => {
+    const data = response.data;
+    console.log("success", response);
+    ReactDOM.render(
+        <div className="Dashboard">
+            <Dashboard data={data} /> </div>, document.getElementById('root'));
+}).catch((error) => {
+    console.log("error", error);
+    ReactDOM.render(
+        <div className="Dashboard">
+            It's fucked
+            <Dashboard data={'Shit'} /> </div>, document.getElementById('root'));
 });
 
-ReactDOM.render(
-    <div className="Dashboard">
-    <Dashboard data={data} /> </div>, document.getElementById('root'));
+
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
